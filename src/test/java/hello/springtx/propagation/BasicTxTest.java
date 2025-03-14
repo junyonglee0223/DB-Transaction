@@ -1,6 +1,7 @@
 package hello.springtx.propagation;
 
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 
 import javax.sql.DataSource;
@@ -78,6 +80,52 @@ public class BasicTxTest {
         log.info("ts 2 rollback starts!!!");
         txManager.rollback(ts2);
         log.info("ts 2 rollback ends!!!");
+    }
+
+    @Test
+    void innerCommitTest(){
+        log.info("outer transaction starts!!!");
+        TransactionStatus outerTs = txManager.getTransaction(new DefaultTransactionAttribute());
+        log.info("outer.isNewTransaction = {}", outerTs.isNewTransaction());
+
+        log.info("inner transaction starts!!!");
+        TransactionStatus innerTs = txManager.getTransaction(new DefaultTransactionAttribute());
+        log.info("inner.isNewTransaction = {}", innerTs.isNewTransaction());
+
+        log.info("inner commit!!!");
+        txManager.commit(innerTs);
+
+        log.info("outer commit!!!");
+        txManager.commit(outerTs);
+    }
+
+    @Test
+    void outerRollbackTest(){
+        log.info("outer transaction starts!!!");
+        TransactionStatus outerTs = txManager.getTransaction(new DefaultTransactionAttribute());
+
+        log.info("inner transaction starts!!!");
+        TransactionStatus innerTs = txManager.getTransaction(new DefaultTransactionAttribute());
+
+        log.info("inner ts commit!!!");
+        txManager.commit(innerTs);
+        log.info("outer ts rollback!!!");
+        txManager.rollback(outerTs);
+    }
+
+    @Test
+    void innerRollbackTest(){
+        log.info("outer transaction starts!!!");
+        TransactionStatus outerTs = txManager.getTransaction(new DefaultTransactionAttribute());
+
+        log.info("inner transaction starts!!!");
+        TransactionStatus innerTs = txManager.getTransaction(new DefaultTransactionAttribute());
+
+        log.info("inner ts rollback!!!");
+        txManager.rollback(innerTs);
+        log.info("outer ts commit!!!");
+        Assertions.assertThatThrownBy(() -> txManager.commit(outerTs))
+                        .isInstanceOf(UnexpectedRollbackException.class);
     }
 
 
