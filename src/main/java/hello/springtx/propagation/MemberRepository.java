@@ -14,7 +14,7 @@ import java.util.Optional;
 public class MemberRepository {
     private final EntityManager em;
 
-    @Transactional
+    //@Transactional
     public void save(Member member){
         log.info("save member!!!");
         em.persist(member);
