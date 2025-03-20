@@ -21,6 +21,7 @@ public class MemberService {
         logRepository.save(logMessage);
     }
 
+    @Transactional
     public void joinV2(String username){
         Member member = new Member(username);
         Log logMessage = new Log(username);
@@ -31,6 +32,7 @@ public class MemberService {
             logRepository.save(logMessage);
         }catch (RuntimeException e){
             log.info("runTime Exception occurs");
+            //throw new RuntimeException();
         }
     }
 }

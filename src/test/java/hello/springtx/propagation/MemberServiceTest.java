@@ -91,4 +91,34 @@ class MemberServiceTest {
         Assertions.assertTrue(logRepository.find(username).isEmpty());
     }
 
+    /*
+     * memberService @Transaction - ON
+     * memberRepository @Transaction ON
+     * logRepository @Transaction - ON   - exception occurs
+     * */
+    @Test
+    void recoverException_fail(){
+        String username = "log exception recoverException_fail";
+        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+                memberService.joinV2(username)).isInstanceOf(RuntimeException.class);
+
+        Assertions.assertTrue(memberRepository.find(username).isEmpty());
+        Assertions.assertTrue(logRepository.find(username).isEmpty());
+    }
+
+    /*
+     * memberService @Transaction - ON
+     * memberRepository @Transaction ON
+     * logRepository @Transaction(REQUIRES_NEW) - ON   - exception occurs
+     * */
+    @Test
+    void recoverException_success(){
+        String username = "log exception recoverException_fail";
+//        org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+//                memberService.joinV2(username)).isInstanceOf(RuntimeException.class);
+
+        memberService.joinV2(username);
+        Assertions.assertTrue(memberRepository.find(username).isPresent());
+        Assertions.assertTrue(logRepository.find(username).isEmpty());
+    }
 }
