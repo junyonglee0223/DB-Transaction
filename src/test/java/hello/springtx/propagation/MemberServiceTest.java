@@ -46,4 +46,24 @@ class MemberServiceTest {
         Assertions.assertTrue(memberRepository.find(username).isPresent());
         Assertions.assertTrue(logRepository.find(username).isPresent());
     }
+
+    @Test
+    void outerTxOn_success(){
+        String username = "outerTxOn_success";
+        memberService.joinV1(username);
+
+        Assertions.assertTrue(memberRepository.find(username).isPresent());
+        Assertions.assertTrue(logRepository.find(username).isPresent());
+    }
+    @Test
+    void outerTxOn_fail(){
+        String username = "log exception outerTxOn_fail";
+        //memberService.joinV1(username);
+        org.assertj.core.api.Assertions.assertThatThrownBy(()
+                -> memberService.joinV1(username)).isInstanceOf(RuntimeException.class);
+
+        Assertions.assertTrue(memberRepository.find(username).isEmpty());
+        Assertions.assertTrue(logRepository.find(username).isEmpty());
+    }
+
 }
