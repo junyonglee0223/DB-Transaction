@@ -19,6 +19,11 @@ class MemberServiceTest {
     @Autowired
     private LogRepository logRepository;
 
+    /*
+     * memberService @Transaction - OFF
+     * memberRepository @Transaction ON
+     * logRepository @Transaction - ON
+     * */
     @Test
     void outerTxOff_success(){
         String username = "outerTxOff_success";
@@ -28,6 +33,11 @@ class MemberServiceTest {
         Assertions.assertTrue(logRepository.find(username).isPresent());
     }
 
+    /*
+    * memberService @Transaction - OFF
+    * memberRepository @Transaction ON
+    * logRepository @Transaction - ON   - exception occurs
+    * */
     @Test
     void outerTxOff_fail(){
         String username = "log exception test";
@@ -38,6 +48,11 @@ class MemberServiceTest {
         Assertions.assertTrue(logRepository.find(username).isEmpty());
     }
 
+    /*
+     * memberService @Transaction - ON
+     * memberRepository @Transaction OFF
+     * logRepository @Transaction - OFF
+     * */
     @Test
     void singleTx(){
         String username = "single tx test";
@@ -47,6 +62,11 @@ class MemberServiceTest {
         Assertions.assertTrue(logRepository.find(username).isPresent());
     }
 
+    /*
+     * memberService @Transaction - ON
+     * memberRepository @Transaction ON
+     * logRepository @Transaction - ON
+     * */
     @Test
     void outerTxOn_success(){
         String username = "outerTxOn_success";
@@ -55,6 +75,11 @@ class MemberServiceTest {
         Assertions.assertTrue(memberRepository.find(username).isPresent());
         Assertions.assertTrue(logRepository.find(username).isPresent());
     }
+    /*
+     * memberService @Transaction - ON
+     * memberRepository @Transaction ON
+     * logRepository @Transaction - ON   - exception occurs
+     * */
     @Test
     void outerTxOn_fail(){
         String username = "log exception outerTxOn_fail";
